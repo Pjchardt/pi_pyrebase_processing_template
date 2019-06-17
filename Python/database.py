@@ -1,5 +1,6 @@
 import json
 import pyrebase
+import re
 
 from pymitter import EventEmitter
 
@@ -15,7 +16,7 @@ class PyrebaseDatabase(object):
     def start(self):
         self.ee = EventEmitter()
         self.new_data_listener(self.new_data_handler)
-        self.my_stream = self.db.child("users").stream(self.stream_handler)
+        self.my_stream = self.db.child("users").child("0").stream(self.stream_handler)
             
     def stop(self):
         print('closing stream to firebase')
@@ -25,7 +26,8 @@ class PyrebaseDatabase(object):
             print(message["event"]) # put
             print(message["path"]) # /-K7yGTTEp7O549EzTYtI
             print(message["data"]) # {'title': 'Pyrebase', "body": "etc..."}
-            self.ee.emit("new_data_event", message["data"])
+            s = json.dumps(message["data"])
+            self.ee.emit("new_data_event", s)
             
     def new_data_handler(self, args):
         print(args)

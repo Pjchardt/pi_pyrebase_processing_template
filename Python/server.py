@@ -1,4 +1,5 @@
 # Echo server program
+import time
 import socket
 import select
 import threading
@@ -12,24 +13,24 @@ class Server():
 
     def do_sockets(self):
         while self.do_running:
-            read_list = [self.s]
+            unconnected_list = [self.s]
+            connected_list = []
             while self.do_running:
-                readable, writable, errored = select.select(read_list, [], [])
-                for s in readable:
+                unConnected, connected, errored = select.select(unconnected_list, connected_list, [])
+                for s in unConnected:
                     if s is self.s:
                         client_socket, address = self.s.accept()
-                        read_list.append(client_socket)
+                        connected_list.append(client_socket)
                         print ("Connection from", address)
                     else:
-                        if self.has_new_data:
-                            s.send(str.encode(self.data))
                         data = s.recv(1024)
                         if data:
                             print (data)
-                        else:
-                            s.close()
-                            read_list.remove(s)
-
+                for s in connected_list:
+                    if self.has_new_data:
+                        print("sending data to processing")
+                        s.send(str.encode(self.data))
+                        self.has_new_data = False
 
     def __init__(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -46,11 +47,12 @@ class Server():
 
     def new_data(self, data):
         self.data = data
+        print("server got new data", self.data)
         self.has_new_data = True
 
     def stop_server(self):
         self.do_running = False
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect( (self.TCP_IP, self.TCP_PORT))
+        #socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect( (self.TCP_IP, self.TCP_PORT))
         try:
             self.s.shutdown(socket.SHUT_RDWR)
             self.s.close()

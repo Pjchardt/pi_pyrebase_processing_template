@@ -15,6 +15,7 @@ class Main(object):
         #Connect to firebase
         self.db = DB.PyrebaseDatabase()
         self.db.start()
+        self.db.new_data_listener(self.new_data)
         #Setup input events
         IC.InputCommands(self.shutdown)
 
@@ -26,6 +27,10 @@ class Main(object):
         #Loop until 'esc' pressed
         while self.run_loop:
             time.sleep(1)    
+    
+    def new_data(self, args):
+        print('send data to server: ', args)
+        self.serv.new_data(args)
     
     def shutdown(self):
         print('stopping application')
@@ -45,7 +50,7 @@ class Main(object):
         
     def load_processing(self):
         if platform.system() == "Windows":
-            process = subprocess.Popen('C:/Program Files/processing-3.3.5/processing-java --sketch="C:/Personal/Python/pi_pyrebase_processing_template/Processing/client" --force --run')
+            process = subprocess.Popen('C:/Program Files/processing-3.3.5/processing-java --sketch="C:/Personal/Python/unity_pi_firebase/pi_pyrebase_processing_template/Processing/client" --force --run')
         elif platform.system() == "Linux":
             process = subprocess.Popen('/home/...finish the path .../processing-3.3.5/processing-java', ['--sketch=/home/...finish the path.../pi_pyrebase_processing_template/Processing/client', '--force', '--run'])
         else:

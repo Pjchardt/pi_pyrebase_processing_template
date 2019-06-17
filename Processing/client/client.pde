@@ -11,7 +11,7 @@ void setup() {
    * This example will not run if you haven't
    *  previously started a server on this port.
   */ 
-  myClient = new Client(this, "127.0.0.1", 5005); 
+  myClient = new Client(this, "127.0.0.1", 5005);   
 } 
 
 void draw() { 
@@ -21,5 +21,17 @@ void draw() {
   if (myClient.available() > 0) { 
     String inString = myClient.readString(); 
     println(inString); 
+    JSONObject json = parseJSONObject(inString);
+    if (json == null) 
+    {
+      println("JSONObject could not be parsed");
+    } 
+    else 
+    {
+      float red = json.getFloat("r");
+      float green = json.getFloat("g");
+      float blue = json.getFloat("b");
+      background(red*255, green*255, blue*255);
+    }
   }
 } 
